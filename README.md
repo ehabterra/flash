@@ -1,4 +1,4 @@
-#Flash
+# Flash
 This application allows users to upload money to the
 application account and send to other people inside
 the application. 
