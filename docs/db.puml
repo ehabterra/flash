@@ -1,0 +1,82 @@
+@startuml
+
+/'
+entity Entity01 {
+  * identifying_attribute
+  --
+  * mandatory_attribute
+  optional_attribute
+}
+
+Zero or One 	|o--
+Exactly One 	||--
+Zero or Many 	}o--
+One or Many 	}|--
+
+Entity01 }|..|| Entity02
+Entity03 }o..o| Entity04
+Entity05 ||--o{ Entity06
+Entity07 |o--|| Entity08
+
+'/
+
+/' Entities '/
+
+' hide the spot
+hide circle
+
+' avoid problems with angled crows feet
+skinparam linetype ortho
+
+entity users {
+  *id : varchar(50)
+  --
+  *username : varchar(250)
+  *email : varchar(250)
+  *password : varchar(250)
+  balance : number default(0)
+}
+
+entity banks {
+  *id : varchar(50)
+  --
+  *name : varchar(250)
+}
+
+entity user_bank_accounts {
+  *account_number : varchar(50)
+  --
+  *user_id : varchar(50) <<FK>>
+  *bank_id : varchar(50) <<FK>>
+  *branch_number : varchar(20)
+  *holder_name : varchar(200)
+  reference : varchar(500)
+}
+
+entity transactions {
+*id : varchar(50)
+--
+*user_id : varchar(50) <<FK>>
+*type : number (upload/transfer-in/transfer-out)
+*amount : number
+*date : date
+}
+
+entity transaction_accounts {
+*transaction_id : varchar(50)
+--
+*account_number : varchar(50)
+}
+
+entity transaction_recipients {
+*transaction_id : varchar(50)
+--
+*recipient_id : varchar(50)
+}
+
+banks |o..o{ user_bank_accounts
+users |o..o{ transactions
+users |o..o{ user_bank_accounts
+transactions |o..|| transaction_accounts
+transactions |o..|| transaction_recipients
+@enduml

@@ -1,0 +1,223 @@
+consumes:
+- application/json
+info:
+  description: To send money between users
+  title: Flash
+  version: 0.0.1
+# note the new info here as securityDefinitions
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /:
+    get:
+      tags:
+        - home
+      responses:
+        200:
+          description: home page response
+          schema:
+            type: string
+  /api/v1/login:
+    post:
+      tags:
+        - users
+      operationId: login
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/loginRequest"
+      responses:
+        200:
+          description: login user response
+          schema:
+            $ref: "#/definitions/loginResponse"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /api/v1/users/me/connections/{account_number}:
+    post:
+      description: 'Connect to a registered bank'
+      tags: [users]
+      operationId: Connect
+      parameters:
+        - name: account_number
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/connectRequest"
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Success
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /api/v1/users/me/uploads/{account_number}:
+    post:
+      description: 'Upload money from a connected bank'
+      tags: [users]
+      operationId: Upload
+      parameters:
+        - name: account_number
+          in: path
+          required: true
+          type: string
+        - name: amount
+          in: body
+          schema:
+            type: integer
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Success
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /api/v1/users/me/balance:
+    get:
+      description: 'View balance'
+      tags: [users]
+      operationId: GetBalance
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Success
+          schema:
+            type: number
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /api/v1/users/me/transfers/{username_or_email}:
+    post:
+      description: 'Send money to another user'
+      tags: [users]
+      operationId: Send
+      parameters:
+        - name: username_or_email
+          in: path
+          required: true
+          type: string
+        - name: amount
+          in: body
+          schema:
+            type: integer
+      security:
+        - Bearer: []
+      responses:
+        200:
+          description: Success
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /api/v1/rates/{base}/{target}:
+    get:
+      description: 'View exchange rates'
+      tags: [rates]
+      operationId: GetRates
+      security:
+        - Bearer: []
+      parameters:
+        - name: base
+          in: path
+          required: true
+          maxLength: 5
+          minLength: 2
+          type: string
+        - name: target
+          in: path
+          required: true
+          type: string
+          maxLength: 5
+          minLength: 2
+      responses:
+        200:
+          description: Success
+          schema:
+            type: number
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+definitions:
+  loginRequest:
+    type: object
+    required:
+      - username_or_email
+      - password
+    properties:
+      username_or_email:
+        type: string
+        minLength: 1
+      password:
+        type: string
+        minLength: 1
+  loginResponse:
+    type: object
+    required:
+      - token
+      - expire_date
+    properties:
+      token:
+        type: string
+        minLength: 1
+      expire_date:
+        type: string
+        format: date-time
+  connectRequest:
+    type: object
+    required:
+      - bank_id
+      - branch_number
+      - holder_name
+    properties:
+      bank_id:
+        type: string
+      branch_number:
+        type: string
+      holder_name:
+        type: string
+      reference:
+        type: string
+  principle:
+    type: object
+    required:
+      - id
+      - email
+      - username
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+      username:
+        type: string
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"
