@@ -60,7 +60,7 @@ To generate executable file `make build`
 
 To re/create tables run `make sql-init`
 
-## Answers to questions
+## FAQ
 1. What would you add to your solution if you had more time?
    - I would add many things for example:
       - HTTP client to call exchange rate API
