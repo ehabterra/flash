@@ -56,7 +56,7 @@ To generate executable file `make build`
 
 `make docker-up`
 
-## Initiate db
+### Initiate db
 
 To re/create tables run `make sql-init`
 
