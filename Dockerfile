@@ -4,8 +4,8 @@ WORKDIR /app
 RUN apk update && apk add make
 RUN make build
 
-FROM scratch
+FROM alpine
 COPY --from=builder /app/bin /app
 WORKDIR /app
 EXPOSE ${PORT}
-CMD [ "./flash-server" ]
+ENTRYPOINT [ "./flash-server" ]

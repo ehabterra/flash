@@ -18,20 +18,22 @@ import (
 )
 
 type VoltDB struct {
-	db *voltdbclient.Conn
+	datasource string
 }
 
 func NewVoltDB(datasource string) *VoltDB {
-	conn, err := voltdbclient.OpenConn(datasource)
-	if err != nil {
 
-	}
-
-	return &VoltDB{db: conn}
+	return &VoltDB{datasource: datasource}
 }
 
 func (v *VoltDB) Connect(account *models.Account) error {
-	result, err := v.db.Exec("@AdHoc",
+	db, err := v.openDBConnection()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	result, err := db.Exec("@AdHoc",
 		[]driver.Value{
 			`insert into USER_BANK_ACCOUNTS(
 ACCOUNT_NUMBER,USER_ID,BANK_ID,BRANCH_NUMBER,HOLDER_NAME,REFERENCE) 
@@ -47,9 +49,15 @@ values(?,?,?,?,?,?);`,
 }
 
 func (v *VoltDB) AddAccountTransaction(transaction *models.AccountTransaction) error {
+	db, err := v.openDBConnection()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
 	id := uuid.New().String()
 
-	result, err := v.db.Exec("@AdHoc",
+	result, err := db.Exec("@AdHoc",
 		[]driver.Value{
 			`insert into transactions(
 ID, USER_ID,Date,Type,Amount) 
@@ -61,7 +69,7 @@ values(?,?,?,?,?);`,
 			fmt.Sprint(transaction.Amount),
 		})
 
-	result, err = v.db.Exec("@AdHoc",
+	result, err = db.Exec("@AdHoc",
 		[]driver.Value{
 			`insert into transaction_accounts(
 transaction_id, ACCOUNT_NUMBER) 
@@ -74,9 +82,15 @@ values(?,?);`,
 }
 
 func (v *VoltDB) AddRecipientTransaction(transaction *models.RecipientTransaction) error {
+	db, err := v.openDBConnection()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
 	id := uuid.New().String()
 
-	result, err := v.db.Exec("@AdHoc",
+	result, err := db.Exec("@AdHoc",
 		[]driver.Value{
 			`insert into transactions(
 ID, USER_ID,Date,Type,Amount) 
@@ -88,7 +102,7 @@ values(?,?,?,?,?);`,
 			fmt.Sprint(transaction.Amount),
 		})
 
-	result, err = v.db.Exec("@AdHoc",
+	result, err = db.Exec("@AdHoc",
 		[]driver.Value{
 			`insert into transaction_recipients(
 transaction_id, recipient_id) 
@@ -100,7 +114,13 @@ values(?,?);`,
 }
 
 func (v *VoltDB) UpdateBalance(id string, amount int64) error {
-	result, err := v.db.Exec("@AdHoc",
+	db, err := v.openDBConnection()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	result, err := db.Exec("@AdHoc",
 		[]driver.Value{
 			`update users set balance = balance + ? where id = ?`,
 			fmt.Sprint(amount),
@@ -110,7 +130,13 @@ func (v *VoltDB) UpdateBalance(id string, amount int64) error {
 }
 
 func (v *VoltDB) GetUserByUsernameOrEmail(usernameOrEmail string) (*models.User, error) {
-	rows, err := v.db.Query("@AdHoc",
+	db, err := v.openDBConnection()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("@AdHoc",
 		[]driver.Value{
 			`select ID,Username,Email,Password, Balance  From USERS where username = ? or email = ?;`,
 			usernameOrEmail,
@@ -124,7 +150,13 @@ func (v *VoltDB) GetUserByUsernameOrEmail(usernameOrEmail string) (*models.User,
 }
 
 func (v *VoltDB) GetBalance(id string) (float64, error) {
-	rows, err := v.db.Query("@AdHoc",
+	db, err := v.openDBConnection()
+	if err != nil {
+		return 0, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("@AdHoc",
 		[]driver.Value{
 			`select Balance  From USERS where id = ?;`,
 			id,
@@ -137,7 +169,13 @@ func (v *VoltDB) GetBalance(id string) (float64, error) {
 }
 
 func (v *VoltDB) CheckAccountNumber(accountNumber string) (bool, error) {
-	rows, err := v.db.Query("@AdHoc",
+	db, err := v.openDBConnection()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	rows, err := db.Query("@AdHoc",
 		[]driver.Value{
 			`select account_number  From USER_BANK_ACCOUNTS where account_number = ?;`,
 			accountNumber,
@@ -154,12 +192,18 @@ func (v *VoltDB) CheckTransactionLimits(id string, transactionType constants.Tra
 		return true, nil
 	}
 
+	db, err := v.openDBConnection()
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
 	for k, value := range limits {
 		t := time.Now().Add(-k)
 
 		statement := "select count(*) transaction_count From Transactions where user_id = ? and type = ? and date >= ? group by user_id, type having sum(amount) > ?;"
 
-		rows, err := v.db.Query("@AdHoc",
+		rows, err := db.Query("@AdHoc",
 			[]driver.Value{
 				statement,
 				id,
@@ -262,4 +306,9 @@ func executionErrorHandling(err error, result driver.Result) error {
 		return errors.New("no record inserted")
 	}
 	return nil
+}
+
+func (v *VoltDB) openDBConnection() (*voltdbclient.Conn, error) {
+	db, err := voltdbclient.OpenConn(v.datasource)
+	return db, err
 }

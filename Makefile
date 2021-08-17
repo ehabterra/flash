@@ -26,7 +26,7 @@ gen:
 
 .PHONY: run
 run:
-	go run cmd/flash-server/main.go --port 8000
+	DATASOURCE="localhost:21212" go run cmd/flash-server/main.go --port 8000
 
 .PHONY: build
 build:

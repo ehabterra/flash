@@ -2,12 +2,16 @@ version: "3.9"
 services:
   web:
     build: .
+    depends_on:
+      - voltdb
     environment:
       PORT: 8000
       HOST: 0.0.0.0
-      DATASOURCE: "localhost:21212"
+      DATASOURCE: "node1:21212"
     ports:
       - "8000:8000"
+    networks:
+      - voltLocalCluster
   voltdb:
     image: "voltdb/voltdb-community:latest"
     environment:
