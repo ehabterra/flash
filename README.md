@@ -39,7 +39,7 @@ sending money application:
    1. The balance will be affected as following:
       1. Subtract the amount from the user balance.
       1. Add the amount to the recipient user balance.
-1. View current exchange rate
+1. View current exchange rate *(Not implemented)*
 
 The database structure is depicted as the following diagram:
 ![Database](docs/db.png)
@@ -59,6 +59,10 @@ To generate executable file `make build`
 ### Initiate db
 
 To re/create tables run `make sql-init`
+
+## To show swagger documentation 
+
+For the localhost and default port: 8000 you can use http://localhost:8000/docs to show swagger documentation.
 
 ## FAQ
 1. What would you add to your solution if you had more time?
