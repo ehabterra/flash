@@ -3,12 +3,11 @@ services:
   web:
     build: .
     environment:
-      PORT: "8000"
+      PORT: 8000
+      HOST: 0.0.0.0
       DATASOURCE: "localhost:21212"
     ports:
-      - "${PORT}:${PORT}"
-    volumes:
-      - .:/app
+      - "8000:8000"
   voltdb:
     image: "voltdb/voltdb-community:latest"
     environment:

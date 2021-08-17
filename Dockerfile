@@ -5,7 +5,7 @@ RUN apk update && apk add make
 RUN make build
 
 FROM scratch
-COPY --from=builder /app/bin /app/
+COPY --from=builder /app/bin /app
 WORKDIR /app
 EXPOSE ${PORT}
-ENTRYPOINT [ "./flash-server" ]
+CMD [ "./flash-server" ]
