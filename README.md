@@ -1,7 +1,6 @@
 # Flash
-This application allows users to upload money to the
-application account and send to other people inside
-the application. 
+This application is a simulation of a wallet application which allows users to upload money to the
+application's account and send to other people inside the application. 
 
 ## Story
 
