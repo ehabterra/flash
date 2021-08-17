@@ -2,6 +2,10 @@
 This application is a simulation of a wallet application which allows users to upload money to the
 application's account and send to other people inside the application. 
 
+## Used Tools
+- Go-Swagger (API design first)
+- VoltDB (Fast in-memory database)
+
 ## Story
 
 The API contains the following API stories as a sample of
