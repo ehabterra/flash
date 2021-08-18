@@ -85,8 +85,11 @@ func (u Users) Send(id string, usernameOrEmail string, amount int64) error {
 
 func (u Users) Upload(id string, number string, amount int64) error {
 	exists, err := u.db.CheckAccountNumber(number)
-	if err != nil || !exists {
+	if err != nil {
 		return err
+	}
+	if !exists {
+		return errors.New(500, "this account does not exists")
 	}
 
 	err = u.checkLimits(id, constants.UploadTransactionType, amount)
