@@ -64,7 +64,7 @@ To re/create tables run `make sql-init`
 
 For the localhost and default port: 8000 you can use http://localhost:8000/docs to show swagger documentation.
 
-## FAQ
+## Q&A
 1. What would you add to your solution if you had more time?
    - I would add many things for example:
       - HTTP client to call exchange rate API
