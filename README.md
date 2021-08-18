@@ -97,4 +97,4 @@ For the localhost and default port: 8000 you can use http://localhost:8000/docs 
    find bottlenecks in the code.
 
 5. How would you monitor and trace issues in a distributed systems environment?
-   - Logging and use debugging when possible.
+   - Logging and use debugging when possible. I have not used OpenTelemetery but it is a perfect option.
