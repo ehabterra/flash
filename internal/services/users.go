@@ -85,7 +85,7 @@ func (u Users) Send(id string, usernameOrEmail string, amount int64) error {
 
 func (u Users) Upload(id string, number string, amount int64) error {
 	exists, err := u.db.CheckAccountNumber(number)
-	if err != nil && !exists {
+	if err != nil || !exists {
 		return err
 	}
 
